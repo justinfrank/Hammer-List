@@ -28,6 +28,7 @@ struct AppTokens {
         static let body = Font.body
         static let caption = Font.caption
         static let button = Font.body.weight(.medium)
+        static let fontFamily = "Helvetica"
     }
     
     // MARK: - Spacing
