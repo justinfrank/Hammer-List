@@ -55,7 +55,7 @@ struct ListHeaderComponent: View {
             
             Spacer()
             
-            HStack(spacing: AppTokens.Spacing.small) {
+            HStack(spacing: AppTokens.Spacing._100) {
                 if let onEdit = onEdit {
                     AppButton(
                         style: .tertiary,
@@ -77,8 +77,8 @@ struct ListHeaderComponent: View {
                 }
             }
         }
-        .padding(.horizontal, AppTokens.Spacing.medium)
-        .padding(.vertical, AppTokens.Spacing.small)
+        .padding(.horizontal, AppTokens.Spacing._200)
+        .padding(.vertical, AppTokens.Spacing._100)
         .background(AppTokens.Colors.surface)
     }
 }

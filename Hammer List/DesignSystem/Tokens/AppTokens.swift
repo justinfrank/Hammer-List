@@ -32,12 +32,12 @@ struct AppTokens {
     
     // MARK: - Spacing
     struct Spacing {
-        static let xs: CGFloat = 4
-        static let small: CGFloat = 8
-        static let medium: CGFloat = 16
-        static let large: CGFloat = 24
-        static let xl: CGFloat = 32
-        static let xxl: CGFloat = 48
+        static let _50: CGFloat = 4
+        static let _100: CGFloat = 8
+        static let _200: CGFloat = 16
+        static let _300: CGFloat = 24
+        static let _400: CGFloat = 32
+        static let _500: CGFloat = 48
     }
     
     // MARK: - Corner Radius

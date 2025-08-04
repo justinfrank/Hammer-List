@@ -27,7 +27,7 @@ struct AppDetailView: View {
                 Text("Select a page")
                     .font(AppTokens.Typography.body)
                     .foregroundColor(AppTokens.Colors.textSecondary)
-                    .padding(.top, AppTokens.Spacing.small)
+                    .padding(.top, AppTokens.Spacing._100)
             }
         }
     }

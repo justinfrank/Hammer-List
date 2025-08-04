@@ -26,10 +26,10 @@ struct AddItemInputComponent: View {
     }
     
     var body: some View {
-        HStack(spacing: AppTokens.Spacing.small) {
+        HStack(spacing: AppTokens.Spacing._100) {
             TextField(placeholder, text: $text)
                 .font(AppTokens.Typography.body)
-                .padding(AppTokens.Spacing.small)
+                .padding(AppTokens.Spacing._100)
                 .background(AppTokens.Colors.surface)
                 .cornerRadius(AppTokens.CornerRadius.small)
                 .overlay(
@@ -55,7 +55,7 @@ struct AddItemInputComponent: View {
             }
             .disabled(text.trimmingCharacters(in: .whitespaces).isEmpty)
         }
-        .padding(.horizontal, AppTokens.Spacing.medium)
+        .padding(.horizontal, AppTokens.Spacing._200)
     }
 }
 

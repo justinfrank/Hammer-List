@@ -34,22 +34,22 @@ struct AppButton<Content: View>: View {
         var padding: EdgeInsets {
             switch self {
             case .small: return EdgeInsets(
-                top: AppTokens.Spacing.xs, 
-                leading: AppTokens.Spacing.small, 
-                bottom: AppTokens.Spacing.xs, 
-                trailing: AppTokens.Spacing.small
+                top: AppTokens.Spacing._50, 
+                leading: AppTokens.Spacing._100, 
+                bottom: AppTokens.Spacing._50, 
+                trailing: AppTokens.Spacing._100
             )
             case .medium: return EdgeInsets(
-                top: AppTokens.Spacing.small, 
-                leading: AppTokens.Spacing.medium, 
-                bottom: AppTokens.Spacing.small, 
-                trailing: AppTokens.Spacing.medium
+                top: AppTokens.Spacing._100, 
+                leading: AppTokens.Spacing._200, 
+                bottom: AppTokens.Spacing._100, 
+                trailing: AppTokens.Spacing._200
             )
             case .large: return EdgeInsets(
-                top: AppTokens.Spacing.medium, 
-                leading: AppTokens.Spacing.large, 
-                bottom: AppTokens.Spacing.medium, 
-                trailing: AppTokens.Spacing.large
+                top: AppTokens.Spacing._200, 
+                leading: AppTokens.Spacing._300, 
+                bottom: AppTokens.Spacing._200, 
+                trailing: AppTokens.Spacing._300
             )
             }
         }
