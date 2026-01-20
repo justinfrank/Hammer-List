@@ -9,11 +9,11 @@ import SwiftUI
 
 struct AppButton<Content: View>: View {
     enum Style {
-        case primary, secondary, tertiary
+        case brand, secondary, tertiary
         
         var backgroundColor: Color {
             switch self {
-            case .primary: return AppTokens.Colors.primary
+            case .brand: return AppTokens.Colors.brand
             case .secondary: return AppTokens.Colors.surface
             case .tertiary: return Color.clear
             }
@@ -21,9 +21,9 @@ struct AppButton<Content: View>: View {
         
         var foregroundColor: Color {
             switch self {
-            case .primary: return .white
+            case .brand: return .white
             case .secondary: return AppTokens.Colors.text
-            case .tertiary: return AppTokens.Colors.primary
+            case .tertiary: return AppTokens.Colors.brand
             }
         }
     }
@@ -61,7 +61,7 @@ struct AppButton<Content: View>: View {
     let content: Content
     
     init(
-        style: Style = .primary,
+        style: Style = .brand,
         size: Size = .medium,
         action: @escaping () -> Void,
         @ViewBuilder content: () -> Content
@@ -86,8 +86,8 @@ struct AppButton<Content: View>: View {
 
 #Preview {
     VStack(spacing: 16) {
-        AppButton(style: .primary, action: {}) {
-            Text("Primary Button")
+        AppButton(style: .brand, action: {}) {
+            Text("Brand Button")
         }
         
         AppButton(style: .secondary, action: {}) {

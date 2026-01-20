@@ -9,7 +9,7 @@ struct TodoListContainer<T: ListItemProtocol>: View where T.Status == TodoStatus
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 16)
-                .fill(Color(.systemGray6))
+                .fill(Color(.systemBackground))
             List {
                 ForEach(items) { item in
                     TodoItemRow<T>(item: item) {
@@ -20,6 +20,7 @@ struct TodoListContainer<T: ListItemProtocol>: View where T.Status == TodoStatus
                 .onMove(perform: onMove)
             }
             .listStyle(PlainListStyle())
+            .cornerRadius(16)
             .background(Color.clear)
         }
         .padding(.horizontal)

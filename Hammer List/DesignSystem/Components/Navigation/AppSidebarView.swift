@@ -12,20 +12,20 @@ struct AppSidebarView: View {
     @State private var listName: String = "My Tasks"
     
     var body: some View {
-        List(AppPage.allCases, selection: $selectedPage) { page in
-            switch page {
-            case .list:
-                Text(listName)
-                    .font(AppTokens.Typography.body)
-                    .foregroundColor(AppTokens.Colors.text)
-                    .tag(page)
-            case .settings, .about:
-                Text(page.rawValue)
-                    .font(AppTokens.Typography.body)
-                    .foregroundColor(AppTokens.Colors.text)
-                    .tag(page)
-            }
+      List(AppPage.allCases, selection: $selectedPage) { page in
+        switch page {
+        case .list:
+            Text(listName)  // Keep your custom list name
+                .font(AppTokens.Typography.body)
+                .foregroundColor(AppTokens.Colors.text)
+                .tag(page)
+        case .home, .settings, .about:
+            Text(page.title)  // Use the title from the enum
+                .font(AppTokens.Typography.body)
+                .foregroundColor(AppTokens.Colors.text)
+                .tag(page)
         }
+    }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {

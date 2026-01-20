@@ -23,12 +23,14 @@ struct ItemManager {
     }
     
     static func toggleComplete(_ item: Item, in items: [Item]) {
-        if let index = items.firstIndex(where: { $0.id == item.id }) {
-            let current = items[index].status
-            let allCases = TodoStatus.allCases
-            if let nextIndex = allCases.firstIndex(of: current).map({ ($0 + 1) % allCases.count }) {
-                items[index].status = allCases[nextIndex]
-            }
+        let current = item.status
+        let allCases = TodoStatus.allCases
+        if let currentIndex = allCases.firstIndex(of: current) {
+            let nextIndex = (currentIndex + 1) % allCases.count
+            item.status = allCases[nextIndex]
+            
+            // Force SwiftData to recognize the change
+            item.timestamp = Date() // This triggers a change detection
         }
     }
     

@@ -11,23 +11,19 @@ struct AppDetailView: View {
     let selectedPage: AppPage?
     
     var body: some View {
-        switch selectedPage {
-        case .list:
-            TodoListView()
-        case .settings:
-            SettingsView()
-        case .about:
-            AboutView()
-        case .none:
-            VStack {
-                Image(systemName: "sidebar.left")
-                    .font(.system(size: 48))
-                    .foregroundColor(AppTokens.Colors.textSecondary)
-                
-                Text("Select a page")
-                    .font(AppTokens.Typography.body)
-                    .foregroundColor(AppTokens.Colors.textSecondary)
-                    .padding(.top, AppTokens.Spacing._100)
+        Group {
+            switch selectedPage {
+            case .home:
+                ListOverviewView()
+            case .list:
+                // Your existing list view
+                Text("Individual List View")
+            case .settings:
+                Text("Settings View - Coming Soon")
+            case .about:
+                Text("About View - Coming Soon")
+            case .none:
+                Text("Select a page from the sidebar")
             }
         }
     }

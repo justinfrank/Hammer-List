@@ -26,15 +26,16 @@ struct AddItemInputComponent: View {
     }
     
     var body: some View {
-        HStack(spacing: AppTokens.Spacing._100) {
+        HStack(spacing: AppTokens.Spacing._100)
+        {
             TextField(placeholder, text: $text)
                 .font(AppTokens.Typography.body)
                 .padding(AppTokens.Spacing._100)
-                .background(AppTokens.Colors.surface)
+                .background(LightTheme.background)
                 .cornerRadius(AppTokens.CornerRadius.small)
                 .overlay(
                     RoundedRectangle(cornerRadius: AppTokens.CornerRadius.small)
-                        .stroke(AppTokens.Colors.secondary.opacity(0.3), lineWidth: 1)
+                        .stroke(LightTheme.neutral.opacity(0.3), lineWidth: 1)
                 )
                 .onSubmit {
                     if !text.trimmingCharacters(in: .whitespaces).isEmpty {
@@ -42,20 +43,21 @@ struct AddItemInputComponent: View {
                     }
                 }
             
-            AppButton(
-                style: .primary,
-                size: .medium,
-                action: {
-                    if !text.trimmingCharacters(in: .whitespaces).isEmpty {
-                        onAdd()
-                    }
-                }
-            ) {
-                Text(buttonText)
-            }
-            .disabled(text.trimmingCharacters(in: .whitespaces).isEmpty)
+            // AppButton(
+            //     style: .brand,
+            //     size: .medium,
+            //     action: {
+            //         if !text.trimmingCharacters(in: .whitespaces).isEmpty {
+            //             onAdd()
+            //         }
+            //     }
+            // ) {
+            //     Text(buttonText)
+            // }
+            // .disabled(text.trimmingCharacters(in: .whitespaces).isEmpty)
         }
         .padding(.horizontal, AppTokens.Spacing._200)
+        .background(Color.blue)
     }
 }
 

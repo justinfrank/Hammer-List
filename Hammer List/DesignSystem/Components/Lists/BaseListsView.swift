@@ -36,7 +36,7 @@ struct BaseListView<Content: View>: View {
             
             // List Content
             content
-                .background(AppTokens.Colors.background)
+                .background(LightTheme.surface)
         }
     }
 }
@@ -79,7 +79,7 @@ struct ListHeaderComponent: View {
         }
         .padding(.horizontal, AppTokens.Spacing._200)
         .padding(.vertical, AppTokens.Spacing._100)
-        .background(AppTokens.Colors.surface)
+        .background(Color(.systemBackground))
     }
 }
 
