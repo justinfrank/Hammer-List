@@ -41,8 +41,7 @@ struct ContentView: View {
                         Group {
                             switch selectedPage {
                             case .settings:
-                                Text("Settings View - Coming Soon")
-                                    .navigationTitle("Settings")
+                                SettingsView()
                             case .about:
                                 Text("About View - Coming Soon")
                                     .navigationTitle("About")

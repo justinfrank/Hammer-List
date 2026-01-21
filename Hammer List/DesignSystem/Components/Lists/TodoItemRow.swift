@@ -3,6 +3,14 @@ import SwiftUI
 struct TodoItemRow<T: ListItemProtocol>: View where T.Status == TodoStatus {
     let item: T
     let onToggle: () -> Void
+
+    @EnvironmentObject private var themeManager: ThemeManager
+    @Environment(\.colorScheme) private var systemScheme: ColorScheme
+
+    private var theme: AppTheme {
+        let effective = themeManager.followSystem ? systemScheme : themeManager.override.colorScheme
+        return themeManager.theme(for: effective)
+    }
     
     var body: some View {
         HStack {
@@ -30,7 +38,7 @@ struct TodoItemRow<T: ListItemProtocol>: View where T.Status == TodoStatus {
     private var textColor: Color {
         switch item.status {
         case .notStarted:
-            return LightTheme.brand
+            return theme.brand
         case .inProgress:
             return .orange // Or whatever color you prefer for in-progress
         case .completed:

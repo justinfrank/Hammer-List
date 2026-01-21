@@ -12,6 +12,14 @@ struct BaseListView<Content: View>: View {
     let content: Content
     let onAdd: (() -> Void)?
     let onEdit: (() -> Void)?
+
+    @EnvironmentObject private var themeManager: ThemeManager
+    @Environment(\.colorScheme) private var systemScheme: ColorScheme
+
+    private var theme: AppTheme {
+        let effective = themeManager.followSystem ? systemScheme : themeManager.override.colorScheme
+        return themeManager.theme(for: effective)
+    }
     
     init(
         title: String,
@@ -36,7 +44,7 @@ struct BaseListView<Content: View>: View {
             
             // List Content
             content
-                .background(LightTheme.surface)
+                .background(theme.surface)
         }
     }
 }
@@ -46,12 +54,20 @@ struct ListHeaderComponent: View {
     let title: String
     let onAdd: (() -> Void)?
     let onEdit: (() -> Void)?
+
+    @EnvironmentObject private var themeManager: ThemeManager
+    @Environment(\.colorScheme) private var systemScheme: ColorScheme
+
+    private var theme: AppTheme {
+        let effective = themeManager.followSystem ? systemScheme : themeManager.override.colorScheme
+        return themeManager.theme(for: effective)
+    }
     
     var body: some View {
         HStack {
             Text(title)
                 .font(AppTokens.Typography.headline)
-                .foregroundColor(AppTokens.Colors.text)
+                .foregroundColor(theme.text)
             
             Spacer()
             

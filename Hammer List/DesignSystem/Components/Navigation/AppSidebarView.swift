@@ -10,6 +10,14 @@ import SwiftUI
 struct AppSidebarView: View {
     @Binding var selectedPage: AppPage?
     @State private var listName: String = "My Tasks"
+
+    @EnvironmentObject private var themeManager: ThemeManager
+    @Environment(\.colorScheme) private var systemScheme: ColorScheme
+
+    private var theme: AppTheme {
+        let effective = themeManager.followSystem ? systemScheme : themeManager.override.colorScheme
+        return themeManager.theme(for: effective)
+    }
     
     var body: some View {
       List(AppPage.allCases, selection: $selectedPage) { page in
@@ -17,12 +25,12 @@ struct AppSidebarView: View {
         case .list:
             Text(listName)  // Keep your custom list name
                 .font(AppTokens.Typography.body)
-                .foregroundColor(AppTokens.Colors.text)
+                .foregroundColor(theme.text)
                 .tag(page)
         case .home, .settings, .about:
             Text(page.title)  // Use the title from the enum
                 .font(AppTokens.Typography.body)
-                .foregroundColor(AppTokens.Colors.text)
+                .foregroundColor(theme.text)
                 .tag(page)
         }
     }
@@ -31,7 +39,7 @@ struct AppSidebarView: View {
             ToolbarItem(placement: .navigationBarLeading) {
                 Text("Menu")
                     .font(AppTokens.Typography.headline)
-                    .foregroundColor(AppTokens.Colors.text)
+                    .foregroundColor(theme.text)
             }
             ToolbarItem(placement: .navigationBarTrailing) {
                 AppButton(

@@ -27,7 +27,7 @@ struct ListDetailView: View {
             onEdit: { print("Edit list name") }
         ) {
             DraggableSplitView(
-                initialTopRatio: 0.3,  // Start with 30% top, 70% bottom
+                initialTopRatio: 0.6,  // Start with 30% top, 70% bottom
                 minTopRatio: 0.1,      // Minimum 10% for top
                 maxTopRatio: 0.85       // Maximum 90% for top
             ) {
@@ -54,8 +54,8 @@ struct ListDetailView: View {
                         .focused($isInputFocused)
                         .listRowBackground(Color.clear)
                         .listRowSeparator(.hidden)
-                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                        .background(.blue, in: RoundedRectangle(cornerRadius: 12))
+                        .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
+//                        .background(.red, in: RoundedRectangle(cornerRadius: 16))
                     }
                     .listStyle(PlainListStyle())
                     

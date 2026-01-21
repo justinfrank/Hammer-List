@@ -11,10 +11,8 @@ struct AppTokens {
     
     // MARK: - Colors
     struct Colors {
-        static let brand = LightTheme.brand
-        static let secondary = LightTheme.neutral
-        static let background = Color(UIColor.systemBackground)
-        static let surface = Color(UIColor.secondarySystemBackground)
+        static let background = Primitives.gray1000
+        static let surface = Primitives.gray900
         static let text = Color(UIColor.label)
         static let textSecondary = Color(UIColor.secondaryLabel)
         static let accent = Color.orange

@@ -10,6 +10,8 @@ import SwiftData
 
 @main
 struct Hammer_ListApp: App {
+  @StateObject private var themeManager = ThemeManager()
+
   var sharedModelContainer: ModelContainer = {
     let schema = Schema([
       Item.self,
@@ -27,6 +29,8 @@ struct Hammer_ListApp: App {
   var body: some Scene {
       WindowGroup {
           ContentView()
+            .environmentObject(themeManager)
+            .preferredColorScheme(themeManager.preferredColorScheme)
       }
       .modelContainer(sharedModelContainer)
   }

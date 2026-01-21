@@ -12,6 +12,14 @@ struct AddItemInputComponent: View {
     let placeholder: String
     let buttonText: String
     let onAdd: () -> Void
+
+    @EnvironmentObject private var themeManager: ThemeManager
+    @Environment(\.colorScheme) private var systemScheme: ColorScheme
+
+    private var theme: AppTheme {
+        let effective = themeManager.followSystem ? systemScheme : themeManager.override.colorScheme
+        return themeManager.theme(for: effective)
+    }
     
     init(
         text: Binding<String>,
@@ -31,11 +39,11 @@ struct AddItemInputComponent: View {
             TextField(placeholder, text: $text)
                 .font(AppTokens.Typography.body)
                 .padding(AppTokens.Spacing._100)
-                .background(LightTheme.background)
+                .background(theme.background)
                 .cornerRadius(AppTokens.CornerRadius.small)
                 .overlay(
                     RoundedRectangle(cornerRadius: AppTokens.CornerRadius.small)
-                        .stroke(LightTheme.neutral.opacity(0.3), lineWidth: 1)
+                        .stroke(theme.neutral.opacity(0.3), lineWidth: 1)
                 )
                 .onSubmit {
                     if !text.trimmingCharacters(in: .whitespaces).isEmpty {
@@ -57,12 +65,13 @@ struct AddItemInputComponent: View {
             // .disabled(text.trimmingCharacters(in: .whitespaces).isEmpty)
         }
         .padding(.horizontal, AppTokens.Spacing._200)
-        .background(Color.blue)
+        .padding(.vertical, AppTokens.Spacing._100)
+        .background(theme.accent)
     }
 }
 
 #Preview {
-    @State var sampleText = ""
+    @Previewable @State var sampleText = ""
     
     return VStack(spacing: 20) {
         AddItemInputComponent(
@@ -85,3 +94,4 @@ struct AddItemInputComponent: View {
     }
     .padding()
 }
+

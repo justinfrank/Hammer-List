@@ -8,24 +8,16 @@
 import SwiftUI
 
 struct AppButton<Content: View>: View {
+    @EnvironmentObject private var themeManager: ThemeManager
+    @Environment(\.colorScheme) private var systemScheme: ColorScheme
+
+    private var theme: AppTheme {
+        let effective = themeManager.followSystem ? systemScheme : themeManager.override.colorScheme
+        return themeManager.theme(for: effective)
+    }
+
     enum Style {
         case brand, secondary, tertiary
-        
-        var backgroundColor: Color {
-            switch self {
-            case .brand: return AppTokens.Colors.brand
-            case .secondary: return AppTokens.Colors.surface
-            case .tertiary: return Color.clear
-            }
-        }
-        
-        var foregroundColor: Color {
-            switch self {
-            case .brand: return .white
-            case .secondary: return AppTokens.Colors.text
-            case .tertiary: return AppTokens.Colors.brand
-            }
-        }
     }
     
     enum Size {
@@ -76,10 +68,26 @@ struct AppButton<Content: View>: View {
         Button(action: action) {
             content
                 .font(AppTokens.Typography.button)
-                .foregroundColor(style.foregroundColor)
+                .foregroundColor(foregroundColor(for: style))
                 .padding(size.padding)
-                .background(style.backgroundColor)
+                .background(backgroundColor(for: style))
                 .cornerRadius(AppTokens.CornerRadius.small)
+        }
+    }
+
+    private func backgroundColor(for style: Style) -> Color {
+        switch style {
+        case .brand: return theme.brand
+        case .secondary: return theme.surface
+        case .tertiary: return Color.clear
+        }
+    }
+
+    private func foregroundColor(for style: Style) -> Color {
+        switch style {
+        case .brand: return .white
+        case .secondary: return theme.text
+        case .tertiary: return theme.brand
         }
     }
 }
