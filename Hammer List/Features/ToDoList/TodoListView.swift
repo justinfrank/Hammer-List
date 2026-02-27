@@ -40,7 +40,7 @@ struct TodoListView: View {
                         }
                         .onDelete(perform: deleteItems)
                         .onMove(perform: moveItem)
-                        
+
                         // Add input as the last item in the list
                         AddItemInputComponent(
                             text: $newTaskTitle,
@@ -54,6 +54,7 @@ struct TodoListView: View {
                         .listRowInsets(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0))
                     }
                     .listStyle(PlainListStyle())
+                    .scrollContentBackground(.hidden)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             } bottomContent: {

@@ -43,7 +43,7 @@ struct ListDetailView: View {
                         }
                         .onDelete(perform: deleteItems)
                         .onMove(perform: moveItem)
-                        
+
                         // Add input as the last item in the list
                         AddItemInputComponent(
                             text: $newTaskTitle,
@@ -55,9 +55,9 @@ struct ListDetailView: View {
                         .listRowBackground(Color.clear)
                         .listRowSeparator(.hidden)
                         .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
-//                        .background(.red, in: RoundedRectangle(cornerRadius: 16))
                     }
                     .listStyle(PlainListStyle())
+                    .scrollContentBackground(.hidden)
                     
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
