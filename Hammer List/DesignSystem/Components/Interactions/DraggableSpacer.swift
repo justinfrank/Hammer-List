@@ -4,8 +4,15 @@ struct DraggableSplitView<TopContent: View, BottomContent: View>: View {
     @State private var topHeightRatio: CGFloat
     private let minHeightRatio: CGFloat
     private let maxHeightRatio: CGFloat
-    private let dividerHeight: CGFloat = 28 // Height of divider + padding
-    
+
+    // iPhone frame constants (matching Figma design)
+    private let framePadding: CGFloat = 12
+    private let panelGap: CGFloat = 12
+    private let dividerTouchHeight: CGFloat = 28  // touch target
+    private let homeIndicatorWidth: CGFloat = 81
+    private let homeIndicatorHeight: CGFloat = 7
+    private let panelCornerRadius: CGFloat = 20
+
     let topContent: () -> TopContent
     let bottomContent: () -> BottomContent
 
@@ -23,61 +30,49 @@ struct DraggableSplitView<TopContent: View, BottomContent: View>: View {
 
     var body: some View {
         GeometryReader { geometry in
-            let availableHeight = geometry.size.height - dividerHeight
+            // Available height after frame padding, gaps, and divider touch area
+            let totalChrome = (framePadding * 2) + (panelGap * 2) + dividerTouchHeight
+            let availableHeight = geometry.size.height - totalChrome
             let topHeight = availableHeight * topHeightRatio
             let bottomHeight = availableHeight * (1 - topHeightRatio)
-            
-            VStack(spacing: 0) {
-                // Top panel with custom content
-                HStack {
-                    topContent()
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                }
-                .frame(height: topHeight)
 
-                // Group divider and bottom panel inside a ZStack with background
+            VStack(spacing: panelGap) {
+                // Top panel — white rounded screen area
+                topContent()
+                    .frame(maxWidth: .infinity)
+                    .frame(height: topHeight)
+                    .background(Color.white)
+                    .clipShape(RoundedRectangle(cornerRadius: panelCornerRadius))
+
+                // Home indicator — draggable divider
                 ZStack {
-                    RoundedRectangle(cornerRadius: 16)
-//                        .fill(LightTheme.accent)
-                        .fill(Color.secondary.opacity(0.2))
-                    VStack(spacing: 0) {
-                        // Draggable divider
-                        ZStack {
-                            Rectangle()
-                                .fill(Color.clear)
-                                .frame(height: 12)
-//                                .background(Color.secondary.opacity(0.2))
-                                .cornerRadius(4)
-                            HStack(spacing: 4) {
-                                Capsule()
-                                    .fill(Color.secondary)
-                                    .frame(width: 48, height: 4)
-                            }
-                        }
-                        .frame(maxHeight: .infinity)
-                        .padding(.vertical, 8)
-                        .gesture(
-                            DragGesture()
-                                .onChanged { value in
-                                    let dragRatio = value.translation.height / availableHeight
-                                    let newRatio = topHeightRatio + dragRatio
-                                    topHeightRatio = min(max(newRatio, minHeightRatio), maxHeightRatio)
-                                }
-                        )
-                        // Bottom panel with custom content
-                        HStack {
-                            bottomContent()
-                                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        }
-                        .frame(height: bottomHeight)
-                    }
-                    .padding(.horizontal)
-                    .padding(.top, 4)
-                    .padding(.bottom, 8)
+                    Rectangle()
+                        .fill(Color.clear)
+                        .frame(height: dividerTouchHeight)
+                    Capsule()
+                        .fill(Color.white)
+                        .frame(width: homeIndicatorWidth, height: homeIndicatorHeight)
                 }
+                .gesture(
+                    DragGesture()
+                        .onChanged { value in
+                            let dragRatio = value.translation.height / availableHeight
+                            let newRatio = topHeightRatio + dragRatio
+                            topHeightRatio = min(max(newRatio, minHeightRatio), maxHeightRatio)
+                        }
+                )
+
+                // Bottom panel — white rounded screen area
+                bottomContent()
+                    .frame(maxWidth: .infinity)
+                    .frame(height: bottomHeight)
+                    .background(Color.white)
+                    .clipShape(RoundedRectangle(cornerRadius: panelCornerRadius))
             }
+            .padding(framePadding)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color(hex: "4C4C4C"))
         }
         .frame(maxHeight: .infinity)
-        .border(Color.gray.opacity(0.3))
     }
 }

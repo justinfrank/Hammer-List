@@ -3,6 +3,9 @@ import SwiftUI
 struct TodoItemRow<T: ListItemProtocol>: View where T.Status == TodoStatus {
     let item: T
     let onToggle: () -> Void
+    var childListCount: Int? = nil
+    var onNavigate: (() -> Void)? = nil
+    var onAddChildList: (() -> Void)? = nil
 
     @EnvironmentObject private var themeManager: ThemeManager
     @Environment(\.colorScheme) private var systemScheme: ColorScheme
@@ -26,10 +29,23 @@ struct TodoItemRow<T: ListItemProtocol>: View where T.Status == TodoStatus {
                 .fontWeight(fontWeight)
             
             Spacer()
-            
-            Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .shortened))
-                .font(.caption)
-                .foregroundColor(timestampColor)
+
+            if let count = childListCount {
+                Button(action: { onNavigate?() }) {
+                    ListItemIndicator(count: count)
+                }
+                .buttonStyle(PlainButtonStyle())
+            }
+
+        }
+        .contextMenu {
+            if let addChildList = onAddChildList {
+                Button {
+                    addChildList()
+                } label: {
+                    Label("Add List", systemImage: "list.bullet.indent")
+                }
+            }
         }
     }
     
@@ -57,16 +73,6 @@ struct TodoItemRow<T: ListItemProtocol>: View where T.Status == TodoStatus {
         }
     }
     
-    private var timestampColor: Color {
-        switch item.status {
-        case .notStarted:
-            return .secondary
-        case .inProgress:
-            return .orange.opacity(0.7) // Match the text color but muted
-        case .completed:
-            return .gray.opacity(0.7)
-        }
-    }
 }
 
 #Preview {

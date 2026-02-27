@@ -45,4 +45,16 @@ struct AppTokens {
         static let medium: CGFloat = 12
         static let large: CGFloat = 16
     }
+
+    // MARK: - Elevation
+    struct Elevation {
+        let color: Color
+        let radius: CGFloat
+        let x: CGFloat
+        let y: CGFloat
+
+        static let low    = Elevation(color: .black.opacity(0.06), radius: 4,  x: 0, y: 2)
+        static let medium = Elevation(color: .black.opacity(0.10), radius: 8,  x: 0, y: 4)
+        static let high   = Elevation(color: .black.opacity(0.15), radius: 16, x: 0, y: 8)
+    }
 }

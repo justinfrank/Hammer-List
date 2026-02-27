@@ -14,8 +14,11 @@ final class ItemList {
     var name: String
     var createdAt: Date
     var order: Int = 0
-    @Relationship(deleteRule: .cascade) var items: [Item] = []
-    
+    var parentItems: [Item] = []
+    var isRoot: Bool { parentItems.isEmpty }
+
+    @Relationship(deleteRule: .cascade, inverse: \Item.parentList) var items: [Item] = []
+
     init(name: String) {
         self.name = name
         self.createdAt = Date()

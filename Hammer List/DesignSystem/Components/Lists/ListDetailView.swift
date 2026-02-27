@@ -13,6 +13,12 @@ struct ListDetailView: View {
     let list: ItemList
     
     @State private var newTaskTitle: String = ""
+    @State private var selectedChildItem: Item? = nil
+    @State private var selectedChildList: ItemList? = nil
+    @State private var itemForChildList: Item? = nil
+    @State private var isImportingList = false
+    @State private var isEditingListName = false
+    @State private var editedListName = ""
     @FocusState private var isInputFocused: Bool
     
     // Query items that belong to this specific list
@@ -21,57 +27,86 @@ struct ListDetailView: View {
     }
     
     var body: some View {
-        BaseListView(
-            title: "",
-            onAdd: { print("Add new todo list") },
-            onEdit: { print("Edit list name") }
-        ) {
-            DraggableSplitView(
-                initialTopRatio: 0.6,  // Start with 30% top, 70% bottom
-                minTopRatio: 0.1,      // Minimum 10% for top
-                maxTopRatio: 0.85       // Maximum 90% for top
-            ) {
-                VStack(spacing: 0) {
-                    // Custom list that includes both items and add input
-                    List {
-                        // Todo items from this specific list
-                        ForEach(items, id: \.id) { item in
-                            TodoItemRow(
-                                item: item,
-                                onToggle: { toggleComplete(item) }
-                            )
-                        }
-                        .onDelete(perform: deleteItems)
-                        .onMove(perform: moveItem)
-                        
-                        // Add input as the last item in the list
-                        AddItemInputComponent(
-                            text: $newTaskTitle,
-                            placeholder: "New task",
-                            buttonText: "Add",
-                            onAdd: addItem
-                        )
-                        .focused($isInputFocused)
-                        .listRowBackground(Color.clear)
-                        .listRowSeparator(.hidden)
-                        .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
-//                        .background(.red, in: RoundedRectangle(cornerRadius: 16))
-                    }
-                    .listStyle(PlainListStyle())
-                    
+        // TODO: Re-wrap with DraggableSplitView when bottom panel has real content
+        VStack(spacing: 0) {
+            List {
+                ForEach(items, id: \.id) { item in
+                    TodoItemRow(
+                        item: item,
+                        onToggle: { toggleComplete(item) },
+                        childListCount: item.hasChildLists ? item.childItemCount : nil,
+                        onNavigate: {
+                            let childLists = item.childLists.sorted { $0.order < $1.order }
+                            if childLists.count == 1 {
+                                selectedChildList = childLists.first
+                            } else {
+                                selectedChildItem = item
+                            }
+                        },
+                        onAddChildList: { itemForChildList = item }
+                    )
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            } bottomContent: {
-                // Bottom content can be empty or used for other controls
-                VStack {
-                    Text("Additional controls can go here")
-                        .foregroundColor(.secondary)
-                        .font(.caption)
+                .onDelete(perform: deleteItems)
+                .onMove(perform: moveItem)
+            }
+            .listStyle(PlainListStyle())
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                HStack(spacing: 6) {
+                    Text(list.name)
+                        .font(AppTokens.Typography.headline)
+                    Button {
+                        editedListName = list.name
+                        isEditingListName = true
+                    } label: {
+                        Image(systemName: "pencil")
+                            .font(.footnote)
+                    }
                 }
             }
         }
-        .navigationTitle(list.name)
-        .navigationBarTitleDisplayMode(.inline)
+        .alert("Rename List", isPresented: $isEditingListName) {
+            TextField("List name", text: $editedListName)
+            Button("Save") {
+                list.name = editedListName
+                try? modelContext.save()
+            }
+            Button("Cancel", role: .cancel) { }
+        }
+        .navigationDestination(item: $selectedChildItem) { item in
+            ItemChildListsView(item: item)
+        }
+        .navigationDestination(item: $selectedChildList) { list in
+            ListDetailView(list: list)
+        }
+        .sheet(item: $itemForChildList) { item in
+            AddListModal(parentItem: item)
+        }
+        .sheet(isPresented: $isImportingList) {
+            ImportListSheet(targetList: list)
+        }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            AddItemInputComponent(
+                text: $newTaskTitle,
+                placeholder: "New task",
+                buttonText: "Add",
+                onAdd: addItem,
+                onAddAsNested: addItemAsNested,
+                onImportList: { isImportingList = true }
+            )
+            .focused($isInputFocused)
+            .shadow(
+                color: AppTokens.Elevation.medium.color,
+                radius: AppTokens.Elevation.medium.radius,
+                x: AppTokens.Elevation.medium.x,
+                y: AppTokens.Elevation.medium.y
+            )
+            .padding(.horizontal, AppTokens.Spacing._200)
+            .padding(.bottom, AppTokens.Spacing._200)
+        }
         .onTapGesture {
             // Dismiss keyboard when tapping outside
             isInputFocused = false
@@ -115,6 +150,21 @@ struct ListDetailView: View {
         }
     }
     
+    private func addItemAsNested() {
+        withAnimation {
+            let maxOrder = items.map(\.order).max() ?? 0
+            let newItem = Item(
+                title: newTaskTitle,
+                timestamp: Date(),
+                order: maxOrder + 1
+            )
+            list.items.append(newItem)
+            try? modelContext.save()
+            newTaskTitle = ""
+            itemForChildList = newItem
+        }
+    }
+
     private func toggleComplete(_ item: Item) {
         // Use the same logic as your TodoListView
         ItemManager.toggleComplete(item, in: items)

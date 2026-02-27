@@ -33,7 +33,13 @@ final class Item: ListItemProtocol {
     var status: TodoStatus
     var timestamp: Date
     var order: Int
-    
+    var parentList: ItemList?
+
+    @Relationship(deleteRule: .nullify, inverse: \ItemList.parentItems) var childLists: [ItemList] = []
+
+    var hasChildLists: Bool { !childLists.isEmpty }
+    var childItemCount: Int { childLists.reduce(0) { $0 + $1.items.count } }
+
     init(id: UUID = UUID(), title: String, status: TodoStatus = .notStarted, timestamp: Date, order: Int = 0) {
         self.id = id
         self.title = title

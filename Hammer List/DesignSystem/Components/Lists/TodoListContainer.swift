@@ -5,6 +5,8 @@ struct TodoListContainer<T: ListItemProtocol>: View where T.Status == TodoStatus
     let onDelete: (IndexSet) -> Void
     let onMove: (IndexSet, Int) -> Void
     let onToggleComplete: (T) -> Void
+    var childListCountProvider: ((T) -> Int)? = nil
+    var onNavigate: ((T) -> Void)? = nil
     
     var body: some View {
         ZStack {
@@ -12,9 +14,12 @@ struct TodoListContainer<T: ListItemProtocol>: View where T.Status == TodoStatus
                 .fill(Color(.systemBackground))
             List {
                 ForEach(items) { item in
-                    TodoItemRow<T>(item: item) {
-                        onToggleComplete(item)
-                    }
+                    TodoItemRow<T>(
+                        item: item,
+                        onToggle: { onToggleComplete(item) },
+                        childListCount: childListCountProvider?(item),
+                        onNavigate: onNavigate != nil ? { onNavigate?(item) } : nil
+                    )
                 }
                 .onDelete(perform: onDelete)
                 .onMove(perform: onMove)
