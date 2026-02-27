@@ -2,8 +2,12 @@ import SwiftUI
 
 struct DraggableSplitView<TopContent: View, BottomContent: View>: View {
     @State private var topHeightRatio: CGFloat
+    @GestureState private var dragOffset: CGFloat = 0
+
     private let minHeightRatio: CGFloat
     private let maxHeightRatio: CGFloat
+    private let dividerHeight: CGFloat = 28
+    private let sectionGap: CGFloat = AppTokens.Spacing._100
 
     // iPhone frame constants (matching Figma design)
     private let framePadding: CGFloat = 12
@@ -16,11 +20,13 @@ struct DraggableSplitView<TopContent: View, BottomContent: View>: View {
     let topContent: () -> TopContent
     let bottomContent: () -> BottomContent
 
-    init(initialTopRatio: CGFloat = 0.4,
-         minTopRatio: CGFloat = 0.2,
-         maxTopRatio: CGFloat = 0.8,
-         @ViewBuilder topContent: @escaping () -> TopContent,
-         @ViewBuilder bottomContent: @escaping () -> BottomContent) {
+    init(
+        initialTopRatio: CGFloat = 0.4,
+        minTopRatio: CGFloat = 0.2,
+        maxTopRatio: CGFloat = 0.8,
+        @ViewBuilder topContent: @escaping () -> TopContent,
+        @ViewBuilder bottomContent: @escaping () -> BottomContent
+    ) {
         self._topHeightRatio = State(initialValue: initialTopRatio)
         self.minHeightRatio = minTopRatio
         self.maxHeightRatio = maxTopRatio
@@ -30,44 +36,60 @@ struct DraggableSplitView<TopContent: View, BottomContent: View>: View {
 
     var body: some View {
         GeometryReader { geometry in
-            // Available height after frame padding, gaps, and divider touch area
-            let totalChrome = (framePadding * 2) + (panelGap * 2) + dividerTouchHeight
-            let availableHeight = geometry.size.height - totalChrome
-            let topHeight = availableHeight * topHeightRatio
-            let bottomHeight = availableHeight * (1 - topHeightRatio)
+            let availableHeight = geometry.size.height - dividerHeight - sectionGap
+            let committedRatio = min(
+                max(topHeightRatio + dragOffset / availableHeight, minHeightRatio),
+                maxHeightRatio
+            )
+            let topHeight = availableHeight * committedRatio
+            let bottomHeight = availableHeight * (1 - committedRatio)
 
-            VStack(spacing: panelGap) {
-                // Top panel — white rounded screen area
+            VStack(spacing: sectionGap) {
+                // Top card
                 topContent()
                     .frame(maxWidth: .infinity)
                     .frame(height: topHeight)
-                    .background(Color.white)
-                    .clipShape(RoundedRectangle(cornerRadius: panelCornerRadius))
+                    .background(
+                        RoundedRectangle(cornerRadius: AppTokens.CornerRadius.large)
+                            .fill(Color(UIColor.secondarySystemBackground))
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: AppTokens.CornerRadius.large))
 
-                // Home indicator — draggable divider
-                ZStack {
-                    Rectangle()
-                        .fill(Color.clear)
-                        .frame(height: dividerTouchHeight)
-                    Capsule()
-                        .fill(Color.white)
-                        .frame(width: homeIndicatorWidth, height: homeIndicatorHeight)
+                // Bottom card with drag handle
+                VStack(spacing: 0) {
+                    // Drag handle
+                    ZStack {
+                        Rectangle()
+                            .fill(Color.clear)
+                        Capsule()
+                            .fill(Color.secondary.opacity(0.4))
+                            .frame(width: 48, height: 4)
+                    }
+                    .frame(height: dividerHeight)
+                    .gesture(
+                        DragGesture()
+                            .updating($dragOffset) { value, state, _ in
+                                state = value.translation.height
+                            }
+                            .onEnded { value in
+                                let dragRatio = value.translation.height / availableHeight
+                                topHeightRatio = min(
+                                    max(topHeightRatio + dragRatio, minHeightRatio),
+                                    maxHeightRatio
+                                )
+                            }
+                    )
+
+                    // Bottom content
+                    bottomContent()
+                        .frame(maxWidth: .infinity)
+                        .frame(height: bottomHeight)
                 }
-                .gesture(
-                    DragGesture()
-                        .onChanged { value in
-                            let dragRatio = value.translation.height / availableHeight
-                            let newRatio = topHeightRatio + dragRatio
-                            topHeightRatio = min(max(newRatio, minHeightRatio), maxHeightRatio)
-                        }
+                .background(
+                    RoundedRectangle(cornerRadius: AppTokens.CornerRadius.large)
+                        .fill(Color(UIColor.secondarySystemBackground))
                 )
-
-                // Bottom panel — white rounded screen area
-                bottomContent()
-                    .frame(maxWidth: .infinity)
-                    .frame(height: bottomHeight)
-                    .background(Color.white)
-                    .clipShape(RoundedRectangle(cornerRadius: panelCornerRadius))
+                .clipShape(RoundedRectangle(cornerRadius: AppTokens.CornerRadius.large))
             }
             .padding(framePadding)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
