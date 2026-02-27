@@ -10,10 +10,7 @@ struct TodoItemRow<T: ListItemProtocol>: View where T.Status == TodoStatus {
     @EnvironmentObject private var themeManager: ThemeManager
     @Environment(\.colorScheme) private var systemScheme: ColorScheme
 
-    private var theme: AppTheme {
-        let effective = themeManager.followSystem ? systemScheme : themeManager.override.colorScheme
-        return themeManager.theme(for: effective)
-    }
+    private var theme: AppTheme { themeManager.currentTheme(for: systemScheme) }
     
     var body: some View {
         HStack {
@@ -56,7 +53,7 @@ struct TodoItemRow<T: ListItemProtocol>: View where T.Status == TodoStatus {
         case .notStarted:
             return theme.brand
         case .inProgress:
-            return .orange // Or whatever color you prefer for in-progress
+            return theme.accent
         case .completed:
             return .gray
         }

@@ -1,3 +1,4 @@
+#if DEBUG
 struct DebugHelper {
     static func checkForDuplicateIDs(in items: [Item]) {
         let ids = items.map { $0.id }
@@ -7,3 +8,4 @@ struct DebugHelper {
         }
     }
 }
+#endif
