@@ -9,6 +9,14 @@ struct DraggableSplitView<TopContent: View, BottomContent: View>: View {
     private let dividerHeight: CGFloat = 28
     private let sectionGap: CGFloat = AppTokens.Spacing._100
 
+    // iPhone frame constants (matching Figma design)
+    private let framePadding: CGFloat = 12
+    private let panelGap: CGFloat = 12
+    private let dividerTouchHeight: CGFloat = 28  // touch target
+    private let homeIndicatorWidth: CGFloat = 81
+    private let homeIndicatorHeight: CGFloat = 7
+    private let panelCornerRadius: CGFloat = 20
+
     let topContent: () -> TopContent
     let bottomContent: () -> BottomContent
 
@@ -83,6 +91,9 @@ struct DraggableSplitView<TopContent: View, BottomContent: View>: View {
                 )
                 .clipShape(RoundedRectangle(cornerRadius: AppTokens.CornerRadius.large))
             }
+            .padding(framePadding)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color(hex: "4C4C4C"))
         }
         .frame(maxHeight: .infinity)
     }

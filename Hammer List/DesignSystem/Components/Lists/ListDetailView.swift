@@ -13,6 +13,12 @@ struct ListDetailView: View {
     let list: ItemList
     
     @State private var newTaskTitle: String = ""
+    @State private var selectedChildItem: Item? = nil
+    @State private var selectedChildList: ItemList? = nil
+    @State private var itemForChildList: Item? = nil
+    @State private var isImportingList = false
+    @State private var isEditingListName = false
+    @State private var editedListName = ""
     @FocusState private var isInputFocused: Bool
     
     // Query items that belong to this specific list
@@ -68,10 +74,67 @@ struct ListDetailView: View {
                         .foregroundColor(.secondary)
                         .font(.caption)
                 }
+                .onDelete(perform: deleteItems)
+                .onMove(perform: moveItem)
+            }
+            .listStyle(PlainListStyle())
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                HStack(spacing: 6) {
+                    Text(list.name)
+                        .font(AppTokens.Typography.headline)
+                    Button {
+                        editedListName = list.name
+                        isEditingListName = true
+                    } label: {
+                        Image(systemName: "pencil")
+                            .font(.footnote)
+                    }
+                }
             }
         }
-        .navigationTitle(list.name)
-        .navigationBarTitleDisplayMode(.inline)
+        .alert("Rename List", isPresented: $isEditingListName) {
+            TextField("List name", text: $editedListName)
+            Button("Save") {
+                list.name = editedListName
+                try? modelContext.save()
+            }
+            Button("Cancel", role: .cancel) { }
+        }
+        .navigationDestination(item: $selectedChildItem) { item in
+            ItemChildListsView(item: item)
+        }
+        .navigationDestination(item: $selectedChildList) { list in
+            ListDetailView(list: list)
+        }
+        .sheet(item: $itemForChildList) { item in
+            AddListModal(parentItem: item)
+        }
+        .sheet(isPresented: $isImportingList) {
+            ImportListSheet(targetList: list)
+        }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            AddItemInputComponent(
+                text: $newTaskTitle,
+                placeholder: "New task",
+                buttonText: "Add",
+                onAdd: addItem,
+                onAddAsNested: addItemAsNested,
+                onImportList: { isImportingList = true }
+            )
+            .focused($isInputFocused)
+            .shadow(
+                color: AppTokens.Elevation.medium.color,
+                radius: AppTokens.Elevation.medium.radius,
+                x: AppTokens.Elevation.medium.x,
+                y: AppTokens.Elevation.medium.y
+            )
+            .padding(.horizontal, AppTokens.Spacing._200)
+            .padding(.bottom, AppTokens.Spacing._200)
+        }
         .onTapGesture {
             // Dismiss keyboard when tapping outside
             isInputFocused = false
@@ -115,6 +178,21 @@ struct ListDetailView: View {
         }
     }
     
+    private func addItemAsNested() {
+        withAnimation {
+            let maxOrder = items.map(\.order).max() ?? 0
+            let newItem = Item(
+                title: newTaskTitle,
+                timestamp: Date(),
+                order: maxOrder + 1
+            )
+            list.items.append(newItem)
+            try? modelContext.save()
+            newTaskTitle = ""
+            itemForChildList = newItem
+        }
+    }
+
     private func toggleComplete(_ item: Item) {
         // Use the same logic as your TodoListView
         ItemManager.toggleComplete(item, in: items)

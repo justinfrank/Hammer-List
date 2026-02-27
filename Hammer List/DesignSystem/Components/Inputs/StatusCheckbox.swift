@@ -7,9 +7,12 @@ struct StatusCheckbox: View {
             let size = min(geometry.size.width, geometry.size.height)
             let cornerRadius: CGFloat = 4
             ZStack {
-                // Blue border
-                RoundedRectangle(cornerRadius: cornerRadius)
-                    .stroke(Color.blue, lineWidth: 2)
+                // 4 disconnected strokes with corner overrun — looks hand-sketched
+                HandDrawnRectStrokes(jitter: 1.2, segmentsPerEdge: 4, overrun: 1.5, seed: 12)
+                    .stroke(
+                        Color.blue,
+                        style: StrokeStyle(lineWidth: 1.8, lineCap: .round, lineJoin: .round)
+                    )
                 switch status {
                 case .notStarted:
                     EmptyView()

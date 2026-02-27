@@ -12,9 +12,16 @@ struct AddListModal: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @Query(sort: [SortDescriptor(\ItemList.order, order: .forward)]) private var existingLists: [ItemList]
-    
-    @State private var listName: String = ""
+
+    var parentItem: Item? = nil
+
+    @State private var listName: String
     @FocusState private var isTextFieldFocused: Bool
+
+    init(parentItem: Item? = nil) {
+        self.parentItem = parentItem
+        _listName = State(initialValue: parentItem?.title ?? "")
+    }
     
     var body: some View {
         NavigationView {
@@ -66,14 +73,19 @@ struct AddListModal: View {
     private func createList() {
         let trimmedName = listName.trimmingCharacters(in: .whitespaces)
         guard !trimmedName.isEmpty else { return }
-        
-        // Set order to be after the last list
-        let maxOrder = existingLists.map(\.order).max() ?? -1
-        
+
         let newList = ItemList(name: trimmedName)
-        newList.order = maxOrder + 1
-        modelContext.insert(newList)
-        
+
+        if let parent = parentItem {
+            newList.order = parent.childLists.count
+            modelContext.insert(newList)
+            parent.childLists.append(newList)
+        } else {
+            let maxOrder = existingLists.map(\.order).max() ?? -1
+            newList.order = maxOrder + 1
+            modelContext.insert(newList)
+        }
+
         do {
             try modelContext.save()
             dismiss()
