@@ -34,9 +34,26 @@ struct ListOverviewView: View {
         return current
     }
 
+    /// Maps each root ItemList's id to its count of descendant lists.
+    /// Built in a single O(n) pass over `lists` so `metaString` is O(1) per row.
+    @State private var descendantCountByRootID: [UUID: Int] = [:]
+
+    private func rebuildDescendantCounts() {
+        var counts: [UUID: Int] = [:]
+        for list in lists where list.isRoot {
+            counts[list.id] = 0
+        }
+        for list in lists where !list.isRoot {
+            if let root = rootAncestor(of: list) {
+                counts[root.id, default: 0] += 1
+            }
+        }
+        descendantCountByRootID = counts
+    }
+
     private func metaString(for project: ItemList) -> String {
         let itemCount = project.items.count
-        let listCount = lists.filter { !$0.isRoot && rootAncestor(of: $0)?.id == project.id }.count
+        let listCount = descendantCountByRootID[project.id] ?? 0
         let itemLabel = itemCount == 1 ? "item" : "items"
         let listLabel = listCount == 1 ? "list" : "lists"
         return "\(itemCount) \(itemLabel) / \(listCount) \(listLabel)"
@@ -90,6 +107,8 @@ struct ListOverviewView: View {
         .sheet(isPresented: $showingAddListSheet) {
             CreateListInProjectSheet()
         }
+        .onAppear { rebuildDescendantCounts() }
+        .onChange(of: lists) { rebuildDescendantCounts() }
     }
 
     // MARK: - Row Views

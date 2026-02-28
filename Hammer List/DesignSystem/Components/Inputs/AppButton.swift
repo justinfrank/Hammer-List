@@ -11,10 +11,7 @@ struct AppButton<Content: View>: View {
     @EnvironmentObject private var themeManager: ThemeManager
     @Environment(\.colorScheme) private var systemScheme: ColorScheme
 
-    private var theme: AppTheme {
-        let effective = themeManager.followSystem ? systemScheme : themeManager.override.colorScheme
-        return themeManager.theme(for: effective)
-    }
+    private var theme: AppTheme { themeManager.currentTheme(for: systemScheme) }
 
     enum Style {
         case brand, secondary, tertiary

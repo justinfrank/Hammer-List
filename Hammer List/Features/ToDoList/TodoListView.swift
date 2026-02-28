@@ -77,7 +77,9 @@ struct TodoListView: View {
             if items.isEmpty {
                 TestDataManager.addTestData(to: modelContext)
             }
+            #if DEBUG
             DebugHelper.checkForDuplicateIDs(in: items)
+            #endif
         }
     }
     

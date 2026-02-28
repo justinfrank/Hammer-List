@@ -33,4 +33,10 @@ final class ThemeManager: ObservableObject {
     func theme(for effectiveScheme: ColorScheme) -> AppTheme {
         effectiveScheme == .dark ? .dark : .light
     }
+
+    /// Returns the active AppTheme based on the current system color scheme.
+    /// Pass `@Environment(\.colorScheme)` from the call site.
+    func currentTheme(for systemScheme: ColorScheme) -> AppTheme {
+        theme(for: followSystem ? systemScheme : override.colorScheme)
+    }
 }
