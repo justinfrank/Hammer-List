@@ -13,7 +13,6 @@ struct ListOverviewView: View {
     @Query(sort: [SortDescriptor(\ItemList.order, order: .forward)]) private var lists: [ItemList]
     @State private var showingAddProjectModal = false
     @State private var showingAddListSheet = false
-    @State private var editMode: EditMode = .inactive
 
     // MARK: - Helpers
 
@@ -63,15 +62,11 @@ struct ListOverviewView: View {
                     .onDelete(perform: deleteProjects)
                     .onMove(perform: moveProjects)
                 }
-                .environment(\.editMode, $editMode)
             }
         }
         .navigationTitle("Projects")
         .navigationBarTitleDisplayMode(.large)
         .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                EditButton()
-            }
             ToolbarItem(placement: .navigationBarTrailing) {
                 Menu {
                     Button {
