@@ -14,7 +14,7 @@ struct ItemManager {
         let trimmedTitle = title.trimmingCharacters(in: .whitespaces)
         guard !trimmedTitle.isEmpty else { return }
         
-        let maxOrder = items.map { $0.order }.max() ?? -1
+        let maxOrder = items.lazy.map { $0.order }.max() ?? -1
         let newOrder = maxOrder + 1
         
         let newItem = Item(title: trimmedTitle, status: .notStarted, timestamp: Date(), order: newOrder)
@@ -62,7 +62,6 @@ struct ItemManager {
         for (index, item) in revisedItems.enumerated() {
             if item.order != index {
                 item.order = index
-                modelContext.insert(item)
             }
         }
     }

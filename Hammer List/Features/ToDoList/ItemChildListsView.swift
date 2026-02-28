@@ -3,9 +3,9 @@ import SwiftUI
 struct ItemChildListsView: View {
     let item: Item
 
-    private var childLists: [ItemList] {
-        item.childLists.sorted { $0.order < $1.order }
-    }
+    // Sorted once on appear and refreshed when the relationship count changes,
+    // avoiding a repeated O(n log n) sort on every body render.
+    @State private var childLists: [ItemList] = []
 
     var body: some View {
         List {
@@ -24,5 +24,11 @@ struct ItemChildListsView: View {
         }
         .navigationTitle(item.title)
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            childLists = item.childLists.sorted { $0.order < $1.order }
+        }
+        .onChange(of: item.childLists.count) {
+            childLists = item.childLists.sorted { $0.order < $1.order }
+        }
     }
 }

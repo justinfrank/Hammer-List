@@ -43,7 +43,7 @@ private struct HandDrawnRNG {
 // MARK: - Core Shapes
 
 /// A horizontal line with perpendicular jitter — use as a divider, underline, or decoration.
-struct HandDrawnLine: Shape {
+struct HandDrawnLine: Shape, Equatable {
     var jitter: CGFloat
     var segments: Int
     var seed: UInt64
@@ -73,7 +73,7 @@ struct HandDrawnLine: Shape {
 
 /// A rectangle border with perpendicular jitter on each edge — use in place of RoundedRectangle.stroke().
 /// Jitter is applied only perpendicular to each edge so the wobble reads as hand-drawn, not chaotic.
-struct HandDrawnRect: Shape {
+struct HandDrawnRect: Shape, Equatable {
     var jitter: CGFloat = 0.8
     var segmentsPerEdge: Int = 3
     var seed: UInt64 = 1
@@ -121,7 +121,7 @@ struct HandDrawnRect: Shape {
 /// exactly how you'd sketch a box by hand.
 ///
 /// - `overrun`: how many points each stroke extends past the corner
-struct HandDrawnRectStrokes: Shape {
+struct HandDrawnRectStrokes: Shape, Equatable {
     var jitter: CGFloat = 1.2
     var segmentsPerEdge: Int = 4
     var overrun: CGFloat = 1.5

@@ -11,7 +11,7 @@ import SwiftData
 struct ListDetailView: View {
     @Environment(\.modelContext) private var modelContext
     let list: ItemList
-    
+
     @State private var newTaskTitle: String = ""
     @State private var selectedChildItem: Item? = nil
     @State private var selectedChildList: ItemList? = nil
@@ -19,13 +19,23 @@ struct ListDetailView: View {
     @State private var isImportingList = false
     @State private var isEditingListName = false
     @State private var editedListName = ""
+    @State private var hasValidatedItems = false
     @FocusState private var isInputFocused: Bool
-    
-    // Query items that belong to this specific list
-    private var items: [Item] {
-        list.items.sorted { $0.order < $1.order }
+
+    // SwiftData-managed sorted fetch — avoids re-sorting on every body render.
+    @Query private var items: [Item]
+
+    init(list: ItemList) {
+        self.list = list
+        let listID = list.id
+        _items = Query(
+            filter: #Predicate<Item> { item in
+                item.parentList?.id == listID
+            },
+            sort: [SortDescriptor(\Item.order, order: .forward)]
+        )
     }
-    
+
     var body: some View {
         BaseListView(
             title: "",
@@ -64,7 +74,7 @@ struct ListDetailView: View {
                     }
                     .listStyle(PlainListStyle())
                     .scrollContentBackground(.hidden)
-                    
+
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             } bottomContent: {
@@ -74,8 +84,6 @@ struct ListDetailView: View {
                         .foregroundColor(.secondary)
                         .font(.caption)
                 }
-                .onDelete(perform: deleteItems)
-                .onMove(perform: moveItem)
             }
             .listStyle(PlainListStyle())
         }
@@ -140,36 +148,44 @@ struct ListDetailView: View {
             isInputFocused = false
         }
         .onAppear {
-          DebugHelper.checkForDuplicateIDs(in: items)
-          
-          // Fix any existing items with invalid status
-          for item in items {
-              // This will ensure all items have valid TodoStatus values
-              if item.status != .notStarted && item.status != .inProgress && item.status != .completed {
-                  item.status = .completed // Assume old "checked" items were completed
-              }
-          }
-          try? modelContext.save()
-      }
+            #if DEBUG
+            DebugHelper.checkForDuplicateIDs(in: items)
+            #endif
+
+            // Fix any existing items with invalid status — run only once per view lifetime.
+            if !hasValidatedItems {
+                hasValidatedItems = true
+                var needsSave = false
+                for item in items {
+                    if item.status != .notStarted && item.status != .inProgress && item.status != .completed {
+                        item.status = .completed // Assume old "checked" items were completed
+                        needsSave = true
+                    }
+                }
+                if needsSave {
+                    try? modelContext.save()
+                }
+            }
+        }
     }
-    
+
     // MARK: - Private Methods
     private func addItem() {
         withAnimation {
             // Create new item and add it to this specific list
-            let maxOrder = items.map(\.order).max() ?? 0
+            let maxOrder = items.lazy.map(\.order).max() ?? 0
             let newItem = Item(
-                title: newTaskTitle, 
+                title: newTaskTitle,
                 timestamp: Date(),
                 order: maxOrder + 1
             )
-            
+
             // Add to the list's items
             list.items.append(newItem)
-            
+
             // Save to context
             try? modelContext.save()
-            
+
             // Clear input and maintain focus
             newTaskTitle = ""
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -177,10 +193,10 @@ struct ListDetailView: View {
             }
         }
     }
-    
+
     private func addItemAsNested() {
         withAnimation {
-            let maxOrder = items.map(\.order).max() ?? 0
+            let maxOrder = items.lazy.map(\.order).max() ?? 0
             let newItem = Item(
                 title: newTaskTitle,
                 timestamp: Date(),
@@ -197,7 +213,7 @@ struct ListDetailView: View {
         // Use the same logic as your TodoListView
         ItemManager.toggleComplete(item, in: items)
     }
-    
+
     private func deleteItems(offsets: IndexSet) {
         withAnimation {
             let itemsToDelete = offsets.map { items[$0] }
@@ -209,17 +225,17 @@ struct ListDetailView: View {
             try? modelContext.save()
         }
     }
-    
+
     private func moveItem(from source: IndexSet, to destination: Int) {
         // Reorder items within this list
         var mutableItems = items
         mutableItems.move(fromOffsets: source, toOffset: destination)
-        
+
         // Update order values
         for (index, item) in mutableItems.enumerated() {
             item.order = index
         }
-        
+
         try? modelContext.save()
     }
 }
